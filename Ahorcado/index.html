@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<head>
+	<script src="https://unpkg.com/react@15/dist/react.min.js"> </script>
+	<script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+	<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+
+<body>
+	<div id="mainContainer"></div>
+
+	<script type="text/babel">
+		const words = ['arbol','catarata','computadora','internet','papada','guitarra','mascota','suplente','equipo','javascript'];
+
+		function getRandomInt(min, max) {
+  		return Math.floor(Math.random() * (10 - 0)) + 0;
+		}
+
+		class GuessClass extends React.Component {
+      constructor(propiedades) {
+				super(propiedades);
+				this.state = {
+					imageUrl: 0
+				}
+				this.wrGuess = [];
+				this.word = this.wordToArray(words[getRandomInt()]);
+				this.corGuess = [];
+				for (let i = 0; i < this.word.length; i++) {
+					this.corGuess.push('');
+					
+				}
+				this.readGuess = this.readGuess.bind(this);
+				this.max = 5;
+			}
+
+			wordToArray(pWord){
+				let arrWord = [];
+				for (const key in pWord) {
+					if (pWord.hasOwnProperty(key)) {
+						arrWord.push(pWord[key]);
+					}
+				}
+				return arrWord;
+			}
+
+      readGuess () {
+				let tempLetter = document.getElementById('txtGuess').value,
+					successIndex = [];
+				document.getElementById('txtGuess').value = '';
+
+				for (let i = 0; i < this.word.length; i++) {
+					if(this.word[i] == tempLetter){
+						successIndex.push(i);
+					}
+				}
+
+				if(successIndex.length > 0){
+					successIndex.forEach(element => {
+						document.getElementById(element).classList.remove(`letter-p`);
+					});
+
+					for(let i = 0; i < successIndex.length; i++){
+						this.corGuess[successIndex[i]] = tempLetter;
+					}
+				}
+
+				else{
+					this.setState({
+						imageUrl: this.state.imageUrl + 1
+					});
+
+					this.wrGuess.push(tempLetter);
+				}
+
+				document.getElementById('txtGuess').value = '';
+
+				this.checkResult();
+
+      }
+
+			checkResult(){
+				let resp = 0;
+
+				if(this.state.imageUrl == this.max){
+					alert(`Perdio`);
+					window.location.reload();
+				}
+
+				for (let i = 0; i < this.corGuess.length; i++) {
+					if(this.corGuess[i] != ''){
+						resp++;
+					}
+				}
+
+				if(resp == this.word.length){
+					setTimeout(() => {
+						alert(`Gano`);
+						window.location.reload();
+					}, 50);
+				}
+			};
+
+      render() {
+				const spaces = this.word.map((letter, i) => (
+          <div className="letter unsel">
+						<p id={i} className="letter-p">{letter}</p>
+						<hr/>
+          </div>
+				));
+				
+      	return (
+          <div> 
+						<div className="form">
+							<h2>Adivina la palabra</h2>
+							<h3>Intentos: {(this.max - this.wrGuess.length)+1}</h3>
+							<input type="text" id="txtGuess" />
+							<button class="mt" onClick={this.readGuess}>Adivina</button>
+						</div>
+						<div className="letters mt">{ spaces }</div>
+						<div className="image-container">
+							<img className="image" src={`img/${this.state.imageUrl}.gif`}/>
+						</div>
+						<div>
+							<h3>{this.wrGuess}</h3>	
+						</div>
+          </div>
+        )
+      }
+		}
+		
+		ReactDOM.render(<GuessClass />, document.getElementById('mainContainer'));
+		
+	</script>
+
+	<style>
+		.letter {
+			width: 20px;
+			margin-right: 20px;
+		}
+
+		.letter-p {
+			color: transparent;
+		}
+
+		.letters {
+			display: flex;
+			text-align: center;
+		}
+
+		.image-container {
+			width: 200px;
+			height: 200px;
+		}
+
+		.mt {
+			margin-top: 20px;
+		}
+
+		.unsel {
+			user-select: none;
+			-moz-user-select: none;
+			-khtml-user-select: none;
+			-webkit-user-select: none;
+			-o-user-select: none;
+		}
+
+		hr {
+			width: 20px;
+			border: solid 1px black;
+		}
+	</style>
+</body>
+
+</html>
